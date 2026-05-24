@@ -1,11 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-
-"""
-视频提取音频工具 (使用 moviepy)
-需要安装: pip install moviepy
-"""
-
 import argparse
 import sys
 from pathlib import Path
@@ -13,15 +5,11 @@ from pathlib import Path
 try:
     from moviepy import __version__ as moviepy_version
     from moviepy import VideoFileClip
-    print(f"[信息] 成功加载 moviepy，版本: {moviepy_version}")
+    print(f"已加载 moviepy，版本: {moviepy_version}")
 except ImportError as e:
-    print("=" * 60)
-    print("错误：未找到 moviepy 库！")
-    print("请在当前虚拟环境中执行：")
-    print("    pip install moviepy")
-    print("=" * 60)
+    print("未找到 moviepy 库！")
+    print("运行pip install moviepy以修复")
     sys.exit(1)
-
 
 def extract_audio(video_path: str, audio_path: str, bitrate: str = None) -> None:
     video_file = Path(video_path)
@@ -30,13 +18,12 @@ def extract_audio(video_path: str, audio_path: str, bitrate: str = None) -> None
 
     out_ext = Path(audio_path).suffix.lower()
 
-    # 根据扩展名选择编码器
     if out_ext == '.mp3':
         codec = 'libmp3lame'
         default_bitrate = '192k'
     elif out_ext == '.wav':
         codec = 'pcm_s16le'
-        default_bitrate = None   # WAV 无损
+        default_bitrate = None
     elif out_ext == '.m4a':
         codec = 'aac'
         default_bitrate = '128k'
@@ -59,15 +46,13 @@ def extract_audio(video_path: str, audio_path: str, bitrate: str = None) -> None
             audio = video.audio
             if audio is None:
                 raise ValueError("视频没有音频轨道")
-
-            # 关键修改：只保留通用参数，移除 verbose
             audio.write_audiofile(
                 audio_path,
                 bitrate=final_bitrate,
                 codec=codec,
-                logger=None      # 关闭进度条（若想显示可改为 'bar'）
+                logger=None
             )
-        print("✅ 提取完成！")
+        print("提取完成")
     except Exception as e:
         raise RuntimeError(f"提取失败: {e}")
 
@@ -82,7 +67,7 @@ def main():
     try:
         extract_audio(args.input, args.output, args.bitrate)
     except Exception as err:
-        print(f"\n❌ {err}")
+        print(f"\n{err}")
         sys.exit(1)
 
 
